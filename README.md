@@ -1,6 +1,6 @@
 # Roxy Menu Plugin for Roxy Engine
 
-Roxy Dialogue is a plugin for [Roxy Engine](https://github.com/invisiblesloth/roxy-engine) that
+A flexible, efficient, and customizable menu plugin for [Roxy Engine](https://github.com/invisiblesloth/roxy-engine). Roxy Menu allows developers to quickly create intuitive, user-friendly menus with minimal overhead, integrating seamlessly with existing Roxy workflows.
 
 ---
 
