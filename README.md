@@ -49,7 +49,7 @@ menu:activate()
 
 ## Requirements
 
-This plugin is designed to be used **with the [Roxy Engine](https://github.com/invisiblesloth/roxy-engine)**.  
+This plugin is designed to be used **with the [Roxy Engine](https://github.com/invisiblesloth/roxy-engine)**.
 It relies on Roxy’s:
 
 - Sprite subclassing (`RoxySprite`)
@@ -75,11 +75,14 @@ RoxyMenu(menuItems, props)
 
 ### Activation and Deactivation
 
-- `menu:activate(pushHandler, handlerOverride, masksPreviousHandlers)`
-  - Activates the menu. Optional parameters control input handling.
+- `menu:activate(handlerOverride)`
+
+  - Activates the menu. Optionally override the default input handler.
+  - Uses `roxy.Input.addHandler()` internally.
 
 - `menu:deactivate()`
-  - Deactivates the menu and restores previous input handlers.
+
+  - Deactivates the menu and calls `roxy.Input.removeHandler()`.
 
 ### Menu Item Manipulation
 
@@ -118,7 +121,7 @@ local props = {
   crankThreshold = 20,
   holdDelay = 500,
   dismissible = true,
-  modal = false,
+  modal = false, -- If true, handler is wrapped in makeModalHandler()
   onDismiss = function() end
 }
 ```

@@ -42,8 +42,8 @@ local fillRoundRect     <const> = Graphics.fillRoundRect
 local getFontOffset     <const> = Text.getFontOffset
 
 -- Input
-local saveAndSetHandler <const> = roxy.Input.saveAndSetHandler
-local restoreHandler    <const> = roxy.Input.restoreHandler
+local addHandler    <const> = roxy.Input.addHandler
+local removeHandler <const> = roxy.Input.removeHandler
 
 -- Sounds
 local loadSound         <const> = Sounds.load
@@ -79,10 +79,10 @@ local CONTENT_INSET_VERTICAL_DEFAULT   <const> = 2   -- Inner top/bottom inset
 local CORNER_RADIUS_DEFAULT            <const> = 4   -- Menu corner radius
 local SELECTED_CORNER_RADIUS_DEFAULT   <const> = 4   -- Selection radius
 
-local setupDimensions   <const> = import "libraries/roxy-menu/core/RoxyMenuDimensions"
-local setupGridview     <const> = import "libraries/roxy-menu/core/RoxyMenuGridview"
-local setupSprite       <const> = import "libraries/roxy-menu/core/RoxyMenuSprite"
-local makeInputHandler  <const> = import "libraries/roxy-menu/core/RoxyMenuInput"
+local setupDimensions  <const> = import "libraries/roxy-menu/core/RoxyMenuDimensions"
+local setupGridview    <const> = import "libraries/roxy-menu/core/RoxyMenuGridview"
+local setupSprite      <const> = import "libraries/roxy-menu/core/RoxyMenuSprite"
+local makeInputHandler <const> = import "libraries/roxy-menu/core/RoxyMenuInput"
 
 class("RoxyMenu").extends(RoxySprite)
 
@@ -198,36 +198,42 @@ end
 --
 
 -- ! Activate
-function RoxyMenu:activate(pushHandler, handlerOverride, masksPreviousHandlers)
+function RoxyMenu:activate(pushHandler, handlerOverride)
   if self.isActive then return self end
 
   self.isActive = true
   self.listview:setSelectedRow(1)
   self:markDirty()
 
-  -- Push input handler unless explicitly disabled
   if pushHandler ~= false then
     local handlerSpec = handlerOverride or self._inputHandler
     local handler
 
     if handlerSpec then
-      if type_(handlerSpec) ~= "function" and type_(handlerSpec) ~= "table" then logWarn("RoxyMenu: Invalid inputHandler type (" .. type_(handlerSpec) .. "). Expected function or table.") end --#DEBUG
-
-      -- Convert function → table
-      handler = (type_(handlerSpec) == "function") and handlerSpec(self) or handlerSpec
+      --#DEBUG START
+      if type(handlerSpec) ~= "function" and type(handlerSpec) ~= "table" then
+        logWarn("RoxyMenu: Invalid inputHandler type (" .. type(handlerSpec) .. "). Expected function or table.")
+      end
+      --#DEBUG END
+      handler = (type(handlerSpec) == "function") and handlerSpec(self) or handlerSpec
       self._inputHandler = handlerSpec
-    else
-      handler = makeInputHandler(self)
+    end
+
+    -- Always try to get a handler, fallback to default if needed
+    if not handler then
+      handler = makeInputHandler and makeInputHandler(self) or {}
+    end
+
+    -- Fill all keys if modal, to fully mask input below
+    if self.modal and roxy.Input.makeModalHandler then
+      handler = roxy.Input.makeModalHandler(handler)
     end
 
     if handler then
-      saveAndSetHandler(
-        handler,
-        (masksPreviousHandlers ~= nil) and masksPreviousHandlers or self.modal
-      )
+      addHandler(self, handler, 100)
       self._inputHandlerPushed = true
-    else
-      logWarn("RoxyMenu: Failed to construct valid input handler. Skipping input push.") --#DEBUG
+    else --#DEBUG
+      logWarn("RoxyMenu: Failed to construct valid input handler. Skipping input registration.") --#DEBUG
     end
   end
 
@@ -237,10 +243,10 @@ end
 -- ! Deactivate
 function RoxyMenu:deactivate()
   if self._inputHandlerPushed then
-    restoreHandler()
+    removeHandler(self)
     self._inputHandlerPushed = false
-  else
-    logWarn("RoxyMenu: attempted to pop input handler, but it wasn't pushed.") --#DEBUG
+  else --#DEBUG
+    logWarn("RoxyMenu: attempted to remove input handler, but it wasn't registered.") --#DEBUG
   end
 
   self.isActive = false
