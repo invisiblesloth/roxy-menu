@@ -197,6 +197,7 @@ end
 -- ! Public Methods
 --
 
+-- ! Activate
 function RoxyMenu:activate(pushHandler, handlerOverride)
   if self.isActive then return self end
 
