@@ -6,6 +6,18 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ---
 
+## [0.3.0] - 2025-06-12
+
+### Changed 🔧
+- Updated `RoxyMenu` to use `roxy.Configuration.get("key")` instead of `getConfiguration()` to comply with `roxy-engine` v0.28.0 API changes.
+- Refactored internal config access to adopt scoped key-based retrieval for improved modularity.
+
+### Migration Notes 🚚
+- `roxy-menu` now requires `roxy-engine` ≥ v0.28.0.
+- Recommended: Verify crank-direction dependent behavior to ensure configuration propagation works as expected.
+
+---
+
 ## [0.2.0] - 2025-06-11
 ### Added ✨
 - Added support for new priority-based input system via `roxy.Input.addHandler()` and `removeHandler()`
