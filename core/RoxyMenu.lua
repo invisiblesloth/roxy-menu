@@ -41,6 +41,9 @@ local fillRoundRect     <const> = Graphics.fillRoundRect
 -- Text
 local getFontOffset     <const> = Text.getFontOffset
 
+-- Config
+local getConfigValue    <const> = roxy.Configuration.get
+
 -- Input
 local addHandler    <const> = roxy.Input.addHandler
 local removeHandler <const> = roxy.Input.removeHandler
@@ -95,8 +98,8 @@ function RoxyMenu:init(menuItems, props)
 
   loadSound("click")
 
-  local config = r.Configuration.getConfiguration()
-  self.crankDirection = config.crankDirection or 1
+  local crankDirection = getConfigValue("crankDirection")
+  self.crankDirection = crankDirection or 1
 
   self._inputHandler       = props and props.inputHandler or makeInputHandler(self)
   self._inputHandlerPushed = false
